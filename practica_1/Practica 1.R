@@ -20,41 +20,41 @@ library(jsonlite)
 library(sirad)
 library(soiltexture)
 
-
-source("get_data_nasapower.R")
-source("get_data_soilgrids.R")
+## 1.1 Algunas funciones en desarrollo
+source("https://raw.githubusercontent.com/jrodriguez88/csmt/master/get_data/get_data_nasapower.R", encoding = "UTF-8")
+source("https://raw.githubusercontent.com/jrodriguez88/csmt/master/get_data/get_data_soilgrids.R", encoding = "UTF-8")
 source("https://raw.githubusercontent.com/jrodriguez88/aquacrop-R/master/make_soil_aquacrop.R", encoding = "UTF-8")
 source("https://raw.githubusercontent.com/jrodriguez88/aquacrop-R/master/make_weather_aquacrop.R", encoding = "UTF-8")
 
 ### 2 Definir directorio de trabajo y resultados, y zona de estudio
-directorio <- paste0(getwd(), "/practica_1/") 
+directorio <- paste0(getwd(), "/practica_1/")
 directorio_resultados <- paste0(directorio, "/data/")
+dir.create(directorio_resultados)
 
 #https://power.larc.nasa.gov/docs/v1/
-variables_clima <- c("PRECTOT", 
-                     "ALLSKY_SFC_SW_DWN", 
-                     "RH2M",
-                     "T2M_MAX",
-                     "T2M_MIN",
-                     "WS2M")
+#Precipitacion, Radiacion Solar, Humedad Relativa, Temp. Max, Temp. Min, Velocidad viento.
+variables_clima <- c("PRECTOT", "ALLSKY_SFC_SW_DWN","RH2M", "T2M_MAX", "T2M_MIN","WS2M")
+
 #https://www.isric.org/explore/soilgrids/faq-soilgrids
+#Densidad Aparente, %Arcillas, %Arenas, %Grava, Carbono Organico, (Contenido agua a marchitez, Capacidad de campo, Saturacion) 
 variables_suelo <- c("BLDFIE","CLYPPT","SNDPPT","CRFVOL","ORCDRC","WWP","AWCh1","AWCtS")
 profundidades <- c("sl1", "sl2", "sl3", "sl4", "sl5")  # 60cm
   
 #Periodo (Año-mes-dia yyyymmdd)
 fecha_inicial <- 19880101
-fecha_final <- 20181231
+fecha_final <- 20191231
 
 # Motupe
-localidad <- "jauja"
-latitud <- -11.7866
-longitud <- -75.4868
-altitud <- 3367
+localidad <- "jalapa"
+latitud <- -13.9
+longitud <- -86.0
+altitud <- 677
 
 ####################
 
 ### Descargar datos de clima y suelo
 datos_clima_crudos <- get_data_nasapower(variables_clima, fecha_inicial, fecha_final, latitud, longitud)
+datos_clima_crudos <- read_csv("practica_1/jalapa.csv")
 
 datos_suelo_crudos <- get_data_soilgrids(variables_suelo, latitud, longitud, profundidades)
 
@@ -67,7 +67,7 @@ skim(datos_suelo_crudos)
 ### Cambiar identificador NA
 datos_clima_crudos <- datos_clima_crudos %>% replace_with_na_all(condition = ~.x == -99)
 
-### Cambiemos esos  nombres feos
+### Cambiemos esos  nombres extraños
 names(datos_clima_crudos)
 names(datos_clima_crudos) <- c("date", "srad", "rain", "rhum", "tmax", "tmin", "wvel")
 skim(datos_clima_crudos)
