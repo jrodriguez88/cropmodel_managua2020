@@ -1,9 +1,9 @@
-# WORKSHOP: HERRAMIENTAS DE MODELAMIENTO AGROCLIMÁTICO PARA EL SOPORTE A LA TOMA DE DECISIONES AGRONÓMICAS
+# WORKSHOP: MODELACIÓN AGROCLIMATICA CON AQUACROP
 ### *Rodriguez-Espinoza J.*
-#### Centro Internacional de Agricultura Tropical
+#### Alianza CIAT y Bioversity International
 #### Contacto: [Email](mailto:j.r.espinosa@cgiar.org) - [LinkedIn](https://www.linkedin.com/in/jeferson-rodriguez-espinoza-24749625/)
-#### Repositorio: [GitHub](https://github.com/jrodriguez88/cropmodel_managua2019)
+#### Repositorio: [GitHub](https://github.com/jrodriguez88/cropmodel_managua2020)
 
 # Descripcion 
-Repositorio de scripts y practicas del Taller de modelamiento agroclimatico desarrollado virtualmente CIAT - ICDF - INTA 
-Marzo 2020.
+Repositorio de scripts y practicas del Taller de modelamiento agroclimatico con AquaCrop. Taller virtual dirigido a ICDF - INTA - Nicaragua.
+Abril 2020.
