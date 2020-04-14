@@ -1,7 +1,10 @@
-# Script Practice 2 - Parametrizacion y Calibracion de AquaCrop
+# Script Practice 3 - Visualizacion de simulaciones en R
 # Author: Rodriguez-Espinoza J.
-# Repository: https://github.com/jrodriguez88/cropmodel_lima2019
-# 2019
+# Repository: https://github.com/jrodriguez88/cropmodel_managua2020
+# 2020
+
+### Objetivo: 
+### Generar ambientes de cultivo en modelos de cultivo mediante la creación de archivos de clima y suelo.
 
 
 ### Load packages
@@ -9,62 +12,64 @@ library(tidyverse)
 library(data.table)
 library(lubridate)
 
+source("https://raw.githubusercontent.com/jrodriguez88/aquacrop-R/master/read_outputs_aquacrop.R", encoding = "UTF-8")
+
 ### 2 Definir directorio de trabajo y resultados, y zona de estudio
 directorio <- paste0(getwd(), "/practica_3/") 
 directorio_resultados <- paste0(directorio, "/data/")
-crop_file <- list.files(directorio_resultados, pattern = ".CRO", full.names = T)
-crop_duration <- 120         # duracion promedio segun criterio del investigador
-sowing_month <- c(12, 1,2,3,4)
+
+# season files
+season_files <- list.files(directorio_resultados, pattern = "season")
+
+# daily files
+daily_files <- list.files(directorio_resultados, pattern = "day")
 
 
-#### Leer datos de clima
+### Leer y graficar resultados de AquaCrop plug-in
+####read_aquacrop_season(file, path)
+season_data <- map(.x = season_files, ~read_aquacrop_season(.x, directorio_resultados)) %>%
+  bind_rows() %>% 
+  mutate(File = str_replace(File, ".PRM", "")) 
+###
+daily_data <- map(.x = daily_files, ~read_aquacrop_day(.x, directorio_resultados)) %>%
+  set_names(daily_files) %>%
+  bind_rows(.id = "File") %>% 
+  mutate(File = str_replace(File, "PRMday.OUT", "")) 
+###
+##### Season plots
+###
+season_data %>% 
+  dplyr::select(Year1, Yield, BioMass, Cycle, Rain, File) %>% 
+  gather("var", "value", -c(File)) %>% 
+  ggplot(aes(value)) +
+  geom_histogram(bins = 10, color="grey") + 
+  facet_wrap(var ~., scales = "free") + 
+  theme_classic()
+###
+season_data %>% mutate(date = make_date(Year1, Month1, Day1)) %>%
+  dplyr::select(File, Yield, BioMass, Cycle, ETo) %>% 
+  gather("var", "value", -c(File)) %>% 
+  ggplot(aes(File, value)) +
+  geom_boxplot(aes(fill=File)) + 
+  facet_wrap(var ~., scales = "free") + 
+  theme_classic()
 
-data <- read_csv(paste0(directorio_resultados, "datos_clima.csv"))
-
-## function to calculate HUH (growing thermal units) _ tbase, topt,and thigh depends of crop
-HUH_cal <- function(tmax, tmin, tbase = 8, topt = 30, thigh = 42.5) {
-  
-  tav <- (tmin + tmax)/2
-  
-  h <- 1:24
-  
-  Td <- tav + (tmax - tmin)*cos(0.2618*(h - 14))/2 
-  
-  huh <- Td %>% enframe(name = NULL, "td") %>%
-    mutate(HUH = case_when(td <= tbase | td >= thigh ~ 0,
-                           td > tbase | td <= topt ~ (td - tbase)/24,
-                           td > topt | td < thigh ~ (topt-(td - topt)*(topt - tbase)/(thigh - topt))/24))
-  
-  sum(huh$HUH)   
-  
-} 
-
-## Function to calculate GDD
-get_param_gdd <- function(data , cropfile, sowing_dates) {
-  
-  gdd_data <- data %>% 
-    mutate(GDD = pmap(list(tmax=.$tmax, tmin = .$tmin), HUH_cal) %>% 
-             flatten_dbl())
-  
-  
-  sow_dates <- gdd_data %>% dplyr::filter(month(date) %in% sowing_dates)
-  
-  #summary(sow_dates)
-  
-  gdd_by <- median(sow_dates$GDD)
-  
-  read_lines(cropfile) %>% str_subset("Calendar Days|(days)") %>% .[-c(1,2,10)] %>%
-    str_split_fixed(":", 2) %>% str_trim() %>% matrix(ncol = 2) %>% 
-    as_tibble() %>%
-    mutate(V = as.numeric(V1)*gdd_by) %>% setNames(c("CYCLE", "grow_param", "GDD")) %>%
-    select(grow_param, CYCLE, GDD)
-  
-  
-  
-}
-
-
-get_param_gdd(data, crop_file, sowing_dates)
+###
+season_data %>% mutate(date = make_date(Year1, Month1, Day1)) %>%
+  select(date, Yield, BioMass, Cycle, Rain, File) %>% 
+  gather("var", "value", -c(date, File)) %>% 
+  ggplot(aes(year(date), value, color = File)) + geom_line() +
+  #    stat_summary(aes(color = File), fun.data = mean_sdl, position=position_jitter()) + 
+  facet_wrap(var ~ ., scales = "free") + 
+  theme_bw()
+###
+season_data %>% mutate(date = make_date(Year1, Month1, Day1)) %>%
+  dplyr::select(date, File, Yield, BioMass, Tr,ExpStr, StoStr,TempStr) %>% 
+  gather("var", "value", -c(date, File)) %>% 
+  ggplot(aes(File, value)) +
+  geom_boxplot(aes(fill = File)) + 
+  facet_wrap(var ~ ., scales = "free") + 
+  theme_classic()
 
 
 
