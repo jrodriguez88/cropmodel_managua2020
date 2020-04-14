@@ -1,0 +1,12 @@
+C:/Users/jrespinosa/OneDrive - CGIAR/Projects/ICDF/SCRIPTS/CROP_MODELING_CIAT_NICARAGUA/outputs/soils/AVT_10 AquaCrop soil file - by https://github.com/jrodriguez88
+        6.1                 : AquaCrop Version (May 2018)
+       75                   : CN (Curve Number)
+       10                   : Readily evaporable water from top layer (mm)
+        4                   : number of soil horizons
+       -9                   : variable no longer applicable
+  Thickness  Sat   FC    WP     Ksat   Penetrability  Gravel  CRa       CRb           description
+  ---(m)-   ----(vol %)-----  (mm/day)      (%)        (%)    -----------------------------------------
+    0.05    46.0  40.0  26.0   107.0        100         7     -0.488972  0.100593             ClLo
+    0.10    44.0  38.0  26.0   113.4        100         8     -0.488397  0.128284             ClLo
+    0.15    42.0  37.0  26.0   110.4        100        11     -0.488664  0.115606             ClLo
+    0.30    41.0  37.0  26.0    92.0        100        12     -0.490317  0.028708             ClLo
