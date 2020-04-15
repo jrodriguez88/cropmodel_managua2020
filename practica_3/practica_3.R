@@ -39,7 +39,7 @@ daily_data <- map(.x = daily_files, ~read_aquacrop_day(.x, directorio_resultados
 ##### Season plots
 ###
 season_data %>% 
-  dplyr::select(Year1, Yield, BioMass, Cycle, Rain, File) %>% 
+  dplyr::select(Tr, ETo, Yield, BioMass, Cycle, Rain, File) %>% 
   gather("var", "value", -c(File)) %>% 
   ggplot(aes(value)) +
   geom_histogram(bins = 10, color="grey") + 
