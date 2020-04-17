@@ -80,7 +80,7 @@ unlink(paste0(plugin_path, "/OUTP/*"))
 to_aquacrop %>% sample_n(.,  size = 25) %>%
   mutate(clim_data = map(data, ~.x %>% 
                       mutate(HUH = map2_dbl(tmax, tmin, HUH_cal)))) %>%
-  mutate(sowing_dates = map(clim_data, ~sow_date_cal(star_sow, end_sow, .x, by = 3)),
+  mutate(sowing_dates = map(clim_data, ~sow_date_cal(star_sow, end_sow, .x, by = 5)),
          crop = "INTAL9",
          id2 = "id2", 
          id_name = paste0(localidad, id)) %>% select(-data, -id) %>%
