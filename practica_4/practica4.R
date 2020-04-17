@@ -11,6 +11,7 @@
 library(tidyverse)
 library(data.table)
 library(lubridate)
+
 source("https://raw.githubusercontent.com/jrodriguez88/ciat_tools/master/remuestreo_mod.R", encoding = "UTF-8")
 source("https://raw.githubusercontent.com/jrodriguez88/aquacrop-R/master/make_weather_aquacrop.R", encoding = "UTF-8")
 source("https://raw.githubusercontent.com/jrodriguez88/aquacrop-R/master/make_project_by_date.R", encoding = "UTF-8")
