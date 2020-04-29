@@ -1,6 +1,6 @@
 # Script app - Pronósticos agro-climáticos estacionales.
 # Author: Rodriguez-Espinoza J. / Esquivel A.
-# Repository: https://github.com/jrodriguez88/COF_2020
+# Repository: https://github.com/jrodriguez88/
 # 2020
 
 ### Objetivo: 
@@ -12,7 +12,7 @@
 source("https://raw.githubusercontent.com/jrodriguez88/aquacrop-R/master/agroclim_forecaster.R", encoding = "UTF-8")
 load_agroclim_requeriments()
 inpack(c("tidyverse", "data.table", "lubridate", "sirad", "naniar", "jsonlite" ,"soiltexture"))
-crear_directorios_COF()
+crear_directorios_COF("/practica_4/")
 
 
 ### 2. Definir zona de estudio
@@ -48,31 +48,38 @@ plot_resampling(data_resampling, datos_historicos, localidad, stat = "median")
 
 cultivar <- list.files(aquacrop_files, pattern = ".CRO") %>% str_remove(".CRO")
 suelos <- list.files(aquacrop_files, pattern = ".SOL")
-star_sow <- c(min(data_resampling$data[[1]]$data[[1]]$month),1)   #c(month, day)
-end_sow <- c((star_sow[1]+1),3)
+start_sow <- min(data_resampling$data[[1]]$data[[1]]$month)   #c(month, day)
 
-to_aquacrop1 <- map(cultivar, ~from_resampling_to_aquacrop(data_resampling, .x, "FrancoArcilloso")) %>% bind_rows()
-to_aquacrop2 <- map(cultivar, ~from_resampling_to_aquacrop(data_resampling, .x, "FrancoArenoso")) %>% bind_rows()
+
+to_aquacrop1 <- map(cultivar, ~from_resampling_to_aquacrop(data_resampling, localidad, .x, "FrancoArcilloso", start_sow)) %>% bind_rows()
+to_aquacrop2 <- map(cultivar, ~from_resampling_to_aquacrop(data_resampling, localidad, .x, "FrancoArenoso", start_sow)) %>% bind_rows()
 to_aquacrop <- bind_rows(to_aquacrop1, to_aquacrop2)
 
 
 
 ### 8. Exportar datos a formato AquaCrop\
 
+#Borra contenido de carpetas
+file.remove(list.files(aquacrop_files, full.names = T, pattern = ".PLU|.ETo|CLI|Tnx"))
 unlink(paste0(plugin_path, "/OUTP/*"))
 unlink(paste0(plugin_path, "/LIST/*"))
 
-
+#Exportar datos clmaticos
 walk2(paste0(localidad, to_aquacrop$id), to_aquacrop$data,
       ~make_weather_aquacrop(aquacrop_files, .x, .y, latitud, altitud))
 
+#Exportar proyectos
 to_aquacrop %>% pull(to_project) %>% 
-  walk(~make_project_by_date(.x$id_name, .x$sowing_dates, .x$cultivar, 130, .x$clim_data, aquacrop_files, .x$plugin_path, .x$id2))
+  walk(~make_project_by_date(id_name = .x$id_name, 
+                             sowing_dates = .x$sowing_dates, 
+                             cultivar = .x$cultivar, 
+                             soil = .x$soil, clim_data =  .x$clim_data, 
+                             max_crop_duration =  140,
+                             aquacrop_files = aquacrop_files, plugin_path = .x$plugin_path))
 
 
 ### 9. Ejecutar las simulaciones de AquaCrop
-system("agroclim_COF/plugin/ACsaV60.exe")
-
+system("practica_4/plugin/ACsaV60.exe")
 
 
 ### 10. Lectura de resultados
@@ -85,7 +92,7 @@ season_data <- map(.x = season_files, ~read_aquacrop_season(.x, path_op)) %>%
 
 
 ### 11. Graficar resultados finales
-plot_agroclim_forecast(season_data, localidad, file_str, "t/ha")
+plot_agroclim_forecast(season_data, localidad, file_str = file_str, yield_units = "qq/mz")
 plot_agroclim_hidric(season_data, localidad, file_str)
 
 
